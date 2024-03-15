@@ -1,4 +1,4 @@
-export const clientId = import.meta.env.clientId;
+export const clientId = import.meta.env.VITE_CLIENT_ID;
 export const redirectUri = window.location.origin + '/redirect'
 export const scope = 'user-modify-playback-state user-read-playback-state'
 
