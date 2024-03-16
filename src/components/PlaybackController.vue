@@ -5,7 +5,8 @@ import {
   pausePlayback,
   startPlayback,
   nextPlayback,
-  previousPlayback
+  previousPlayback,
+  seekToPosition
 } from '@/ctrlSpot'
 
 const wait_before_refresh = 2000
@@ -62,6 +63,11 @@ const nextTrack = () => {
   setTimeout(() => updateState(), wait_before_refresh)
 }
 
+const jumpTo = async (jumpTo_ms) => { 
+  await seekToPosition(jumpTo_ms);
+  currentlyPlaying.value.progress_ms = jumpTo_ms
+}
+
 /**
  * update the state
  */
@@ -111,6 +117,16 @@ onMounted(() => {
       {{ formatTime(currentlyPlaying.duration_ms) }}
     </span>
 
+    <input
+      type="range"
+      min="1"
+      :max="currentlyPlaying.duration_ms"
+      :value="currentlyPlaying.progress_ms"
+      class="slider"
+      id="myRange"
+      @click="jumpTo($event.target.value)"
+    />
+
     <div class="controls">
       <img
         alt="previous"
@@ -118,6 +134,7 @@ onMounted(() => {
         id="playback_previous"
         @click="previousTrack()"
       />
+
       <img
         alt="play"
         class="icon"
@@ -125,6 +142,7 @@ onMounted(() => {
         v-bind:class="{ play: currentlyPlaying.is_playing, pause: !currentlyPlaying.is_playing }"
         @click="togglePlayback()"
       />
+
       <img alt="next" class="clickable icon next" id="playback_next" @click="nextTrack()" />
     </div>
   </div>
@@ -139,14 +157,31 @@ onMounted(() => {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
+
+  width: 100%;
 }
 
 span {
-  align-self: center;
+  width: 80%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+
   text-align: center;
 
-  width: 100%;
   font-size: 5em;
+}
+
+.slider {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 75%; /* Full-width */
+  height: 35px; /* Specified height */
+  border-radius: 25px;
+
+  background-color: black;
+
+  align-self: center;
 }
 
 .controller > * {

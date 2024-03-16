@@ -43,6 +43,12 @@ export const previousPlayback = async () => {
   return makeRequest(url, 'POST')
 }
 
+export const seekToPosition = async (position_ms) => {
+  console.log(position_ms);
+  const url =  api_base_url + 'me/player/seek?position_ms='+ position_ms
+  return makeRequest(url, 'PUT')
+}
+
 /**
  * This is a helperfunction to wrap the API call with a token
  * @param {String} url 
@@ -64,7 +70,6 @@ const makeRequest = async (url, method) => {
         // handle errors
         switch (response.status) {
           case 401:
-          default:
             window.location = '/auth';
             break;
         }
