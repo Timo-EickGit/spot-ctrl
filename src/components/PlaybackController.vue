@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import {
   getPlayback,
   pausePlayback,
@@ -76,17 +76,19 @@ const updateState = async () => {
 
   const result = await getPlayback()
 
-  currentlyPlaying.value.is_playing = result.is_playing || false
-  currentlyPlaying.value.progress_ms = result.progress_ms || localStorage.getItem('progress')
-  currentlyPlaying.value.duration_ms = result.item.duration_ms || localStorage.getItem('duration')
-  currentlyPlaying.value.title = result.item.name || localStorage.getItem('name')
-  currentlyPlaying.value.imgSrc = result.item.album.images[0].url || localStorage.getItem('imgurl')
+  currentlyPlaying.value.volume = result.device.volume_percent
+  currentlyPlaying.value.is_playing = result.is_playing 
+  currentlyPlaying.value.progress_ms = result.progress_ms 
+  currentlyPlaying.value.duration_ms = result.item.duration_ms 
+  currentlyPlaying.value.title = result.item.name 
+  currentlyPlaying.value.imgSrc = result.item.album.images[0].url 
 
-  localStorage.setItem('progress', currentlyPlaying.value.progress_ms)
-  localStorage.setItem('duration', currentlyPlaying.value.duration_ms)
-  localStorage.setItem('name', currentlyPlaying.value.title)
-  localStorage.setItem('imgurl', currentlyPlaying.value.imgSrc)
 }
+
+
+watch(currentlyPlaying, newValue => {
+  localStorage.setItem('lastPlayed', JSON.stringify(newValue))
+}, {deep: true})
 
 /**
  * Formats the time for displaying
@@ -124,7 +126,7 @@ onMounted(() => {
       :value="currentlyPlaying.progress_ms"
       class="slider"
       id="myRange"
-      @click="jumpTo($event.target.value)"
+      @change="jumpTo($event.target.value)"
     />
 
     <div class="controls">
@@ -159,6 +161,7 @@ onMounted(() => {
   align-items: center;
 
   width: 100%;
+  height: 100%;
 }
 
 span {
@@ -189,6 +192,7 @@ span {
 }
 
 .album-art {
+  height: 40%;
   max-width: 80%;
   align-self: center;
   display: flex;
