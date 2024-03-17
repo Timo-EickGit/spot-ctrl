@@ -21,6 +21,8 @@
   color: var(--font-color);
 
   --page-width: 95%;
+
+  direction: ltr;
 }
 
 @font-face {

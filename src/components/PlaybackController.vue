@@ -6,7 +6,8 @@ import {
   startPlayback,
   nextPlayback,
   previousPlayback,
-  seekToPosition
+  seekToPosition,
+  setVolume
 } from '@/ctrlSpot'
 
 const wait_before_refresh = 2000
@@ -63,9 +64,14 @@ const nextTrack = () => {
   setTimeout(() => updateState(), wait_before_refresh)
 }
 
-const jumpTo = async (jumpTo_ms) => { 
-  await seekToPosition(jumpTo_ms);
+const jumpTo = async (jumpTo_ms) => {
+  await seekToPosition(jumpTo_ms)
   currentlyPlaying.value.progress_ms = jumpTo_ms
+}
+
+const setVol = async (targetVolume) => {
+  await setVolume(targetVolume)
+  currentlyPlaying.value.volume = targetVolume
 }
 
 /**
@@ -77,18 +83,20 @@ const updateState = async () => {
   const result = await getPlayback()
 
   currentlyPlaying.value.volume = result.device.volume_percent
-  currentlyPlaying.value.is_playing = result.is_playing 
-  currentlyPlaying.value.progress_ms = result.progress_ms 
-  currentlyPlaying.value.duration_ms = result.item.duration_ms 
-  currentlyPlaying.value.title = result.item.name 
-  currentlyPlaying.value.imgSrc = result.item.album.images[0].url 
-
+  currentlyPlaying.value.is_playing = result.is_playing
+  currentlyPlaying.value.progress_ms = result.progress_ms
+  currentlyPlaying.value.duration_ms = result.item.duration_ms
+  currentlyPlaying.value.title = result.item.name
+  currentlyPlaying.value.imgSrc = result.item.album.images[0].url
 }
 
-
-watch(currentlyPlaying, newValue => {
-  localStorage.setItem('lastPlayed', JSON.stringify(newValue))
-}, {deep: true})
+watch(
+  currentlyPlaying,
+  (newValue) => {
+    localStorage.setItem('lastPlayed', JSON.stringify(newValue))
+  },
+  { deep: true }
+)
 
 /**
  * Formats the time for displaying
@@ -110,7 +118,17 @@ onMounted(() => {
 
 <template>
   <div class="controller">
-    <img :src="currentlyPlaying.imgSrc" alt="Album art" class="album-art" />
+    <div class="leftToRight">
+      <img :src="currentlyPlaying.imgSrc" alt="Album art" class="album-art" />
+      <input
+        type="range"
+        orient="vertical"
+        min="1"
+        :max="100"
+        :value="currentlyPlaying.volume"
+        @change="setVol($event.target.value)"
+      />
+    </div>
 
     <span> {{ currentlyPlaying.title }} </span>
 
@@ -124,8 +142,6 @@ onMounted(() => {
       min="1"
       :max="currentlyPlaying.duration_ms"
       :value="currentlyPlaying.progress_ms"
-      class="slider"
-      id="myRange"
       @change="jumpTo($event.target.value)"
     />
 
@@ -156,7 +172,7 @@ onMounted(() => {
 
   flex-direction: column;
   align-content: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   align-items: center;
 
@@ -172,28 +188,41 @@ span {
 
   text-align: center;
 
-  font-size: 5em;
+  font-size: 3em;
 }
 
-.slider {
-  -webkit-appearance: none; /* Override default CSS styles */
+input[type='range'] {
+  -webkit-appearance: none;
   appearance: none;
-  width: 75%; /* Full-width */
-  height: 35px; /* Specified height */
+  width: 75%;
+  height: 35px;
+
   border-radius: 25px;
-
   background-color: black;
-
   align-self: center;
 }
 
+input[type='range'][orient='vertical'] {
+  appearance: none;
+  writing-mode: vertical-lr;
+  direction: rtl;
+  height: 60%;
+  width: 40px;
+
+  margin: 20px;
+}
+
 .controller > * {
-  margin: 10px;
+  padding: 10px;
 }
 
 .album-art {
-  height: 40%;
+  max-height: 75%;
+  height: auto;
+
   max-width: 80%;
+  width: auto;
+
   align-self: center;
   display: flex;
 
@@ -203,9 +232,17 @@ span {
   border-color: blue;
 }
 
-.icon {
-  height: 100%;
-  object-fit: cover;
+.leftToRight {
+  max-height: 50%;
+
+  height: auto;
+  width: 100%;
+
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: center;
+  justify-content: center;
 }
 
 .controls {
@@ -215,8 +252,13 @@ span {
   justify-content: space-between;
   align-items: center;
 
-  width: 100%;
-  height: 200px;
+  width: auto;
+  height: 25%;
+}
+
+.icon {
+  height: 100%;
+  object-fit: cover;
 }
 
 .play {

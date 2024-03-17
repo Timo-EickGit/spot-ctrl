@@ -43,9 +43,17 @@ export const previousPlayback = async () => {
   return makeRequest(url, 'POST')
 }
 
+/**
+ * Jumps to the specified duration on the current song
+ * @param {int} position_ms 
+ */
 export const seekToPosition = async (position_ms) => {
-  console.log(position_ms);
   const url =  api_base_url + 'me/player/seek?position_ms='+ position_ms
+  return makeRequest(url, 'PUT')
+}
+
+export const setVolume = async (volume) => {
+  const url =  api_base_url + 'me/player/volume?volume_percent=' + volume
   return makeRequest(url, 'PUT')
 }
 
