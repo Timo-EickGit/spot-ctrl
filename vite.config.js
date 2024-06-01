@@ -1,3 +1,4 @@
+import fs from 'fs'
 import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
@@ -16,5 +17,11 @@ export default defineConfig({
   build: {
     envDir: './',
     target: 'esnext' 
+  },
+  server: {
+    https: {
+      key: fs.readFileSync('./cert/key.pem'),
+      cert: fs.readFileSync('./cert/cert.pem'),
+    }
   }
 })

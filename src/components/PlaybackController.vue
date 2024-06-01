@@ -262,19 +262,19 @@ input[type='range'][orient='vertical'] {
 }
 
 .play {
-  content: url('./icons/play.svg');
+  content: url('@/assets/icons/play.svg');
 }
 
 .pause {
-  content: url('./icons/pause.svg');
+  content: url('@/assets/icons/pause.svg');
 }
 
 .next {
-  content: url('./icons/next.svg');
+  content: url('@/assets/icons/next.svg');
 }
 
 .previous {
-  content: url('./icons/skip.svg');
+  content: url('@/assets/icons/skip.svg');
 }
 
 .clickable:active {

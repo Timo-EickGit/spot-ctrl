@@ -30,3 +30,7 @@ coverage
 *.tsbuildinfo
 # .env -> secrets ...
 .env
+
+# certificates
+cert/*
+!cert/.keepme
